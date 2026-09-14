@@ -1,4 +1,3 @@
-
 from tools.app_control import AppController
 from tools.system_tools import SystemTools
 from tools.time_tools import TimeTools
@@ -75,8 +74,14 @@ class CommandOrchestrator:
 
         # Greeting commands
         if command in {
+            "hello",
+            "hi",
+            "hey",
             "hello jarvis",
-            "heyy jarvis"
+            "heyy jarvis",
+            "good morning",
+            "good afternoon",
+            "good evening"
         }:
             return (
                 "Hello sir. I am happy to help you. "
@@ -93,45 +98,122 @@ class CommandOrchestrator:
                 "I'm always happy to help."
             )
 
-        # Application commands
-        if "open notepad" in command:
-            return (
-                "Certainly sir. Opening Notepad. "
-                
-            ) + " " + self.app_controller.open_application(
+        # Open Notepad
+        if any(
+            phrase in command
+            for phrase in [
+                "open notepad",
+                "launch notepad",
+                "start notepad",
+                "open text editor"
+            ]
+        ):
+            result = self.app_controller.open_application(
                 "notepad"
             )
 
-        if "open calculator" in command:
             return (
-                "Certainly sir. Opening Calculator. "
-            
-            ) + " " + self.app_controller.open_application(
+                "Certainly sir. Opening Notepad. "
+                + result
+            )
+
+        # Open Calculator
+        if any(
+            phrase in command
+            for phrase in [
+                "open calculator",
+                "launch calculator",
+                "start calculator",
+                "open calc"
+            ]
+        ):
+            result = self.app_controller.open_application(
                 "calculator"
             )
 
-        if "open chrome" in command:
             return (
-                "Certainly sir. Opening Google Chrome. "
-            
-            ) + " " + self.app_controller.open_application(
+                "Certainly sir. Opening Calculator. "
+                + result
+            )
+
+        # Open Chrome
+        if any(
+            phrase in command
+            for phrase in [
+                "open chrome",
+                "launch chrome",
+                "start chrome",
+                "open google chrome",
+                "launch google chrome",
+                "open browser",
+                "launch browser"
+            ]
+        ):
+            result = self.app_controller.open_application(
                 "chrome"
             )
 
-        if "open youtube" in command:
             return (
-                "Certainly sir. Opening YouTube. "
-                
-            ) + " " + self.app_controller.open_application(
+                "Certainly sir. Opening Google Chrome. "
+                + result
+            )
+
+        # Open VS Code
+        if any(
+            phrase in command
+            for phrase in [
+                "open vscode",
+                "open vs code",
+                "launch vscode",
+                "launch vs code",
+                "start vscode",
+                "start vs code",
+                "open visual studio code"
+            ]
+        ):
+            result = self.app_controller.open_application(
+                "vscode"
+            )
+
+            return (
+                "Certainly sir. Opening Visual Studio Code. "
+                + result
+            )
+
+        # Open YouTube
+        if any(
+            phrase in command
+            for phrase in [
+                "open youtube",
+                "launch youtube",
+                "start youtube"
+            ]
+        ):
+            result = self.app_controller.open_application(
                 "youtube"
             )
 
-        if "open google" in command:
+            return (
+                "Certainly sir. Opening YouTube. "
+                + result
+            )
+
+        # Open Google
+        if any(
+            phrase in command
+            for phrase in [
+                "open google",
+                "launch google",
+                "start google"
+            ]
+        ):
+            result = self.app_controller.open_application(
+                "google"
+            )
+
             return (
                 "Certainly sir. Opening Google. "
-            
-            ) + " " + self.app_controller.open_application(
-                "google"
+                + result
             )
 
         # Google search commands
@@ -142,11 +224,16 @@ class CommandOrchestrator:
                 1
             ).strip()
 
+            if not query:
+                return "What should I search for, sir?"
+
+            result = self.app_controller.search_google(
+                query
+            )
+
             return (
                 "Of course sir. I am searching Google. "
-        
-            ) + " " + self.app_controller.search_google(
-                query
+                + result
             )
 
         if command.startswith("search for "):
@@ -156,52 +243,88 @@ class CommandOrchestrator:
                 1
             ).strip()
 
-            return (
-                "Of course sir. I am searching for that. "
-                
-            ) + " " + self.app_controller.search_google(
+            if not query:
+                return "What should I search for, sir?"
+
+            result = self.app_controller.search_google(
                 query
             )
 
-        # File-management commands
+            return (
+                "Of course sir. I am searching for that. "
+                + result
+            )
+
+        # YouTube search commands
+        if command.startswith("search youtube for "):
+            query = command.replace(
+                "search youtube for ",
+                "",
+                1
+            ).strip()
+
+            if not query:
+                return "What should I search on YouTube, sir?"
+
+            result = self.app_controller.search_google(
+                "site:youtube.com " + query
+            )
+
+            return (
+                "Of course sir. I am searching YouTube. "
+                + result
+            )
+
+        # Project-folder commands
         if (
             "open project folder" in command
             or "open my jarvis folder" in command
             or "open jarvis folder" in command
-            or command.startswith("open my")
+            or "open my project folder" in command
         ):
+            result = self.file_manager.open_project_folder()
+
             return (
                 "Certainly sir. Opening your project folder. "
-                
-            ) + " " + self.file_manager.open_project_folder()
+                + result
+            )
 
+        # List project files
         if (
             "list project files" in command
             or "list my project files" in command
             or "show project files" in command
+            or "show my project files" in command
         ):
-            return (
-                "Of course sir. I will show your project files. "
-                "Happy to help."
-            ) + " " + self.file_manager.list_project_files()
+            result = self.file_manager.list_project_files()
 
+            return (
+                "Of course sir. Here are your project files. "
+                + result
+            )
+
+        # Create demo folder
         if (
             "create a demo folder" in command
             or "create demo folder" in command
             or "create the demo file" in command
             or "create demo file" in command
         ):
+            result = self.file_manager.create_demo_folder()
+
             return (
                 "Certainly sir. I am creating the demo folder. "
-                "Happy to help."
-            ) + " " + self.file_manager.create_demo_folder()
+                + result
+            )
 
-        # Complete system information command
+        # Complete system information
         if (
             "system information" in command
             or "system info" in command
             or "show system information" in command
             or "show system info" in command
+            or command == "system"
+            or "system status" in command
         ):
             cpu_info = self.system_tools.get_cpu_usage()
             memory_info = self.system_tools.get_memory_usage()
@@ -223,60 +346,91 @@ class CommandOrchestrator:
         if (
             "cpu" in command
             or "processor" in command
+            or "processor usage" in command
         ):
+            result = self.system_tools.get_cpu_usage()
+
             return (
                 "Of course sir. I am checking your CPU usage. "
-                
-            ) + " " + self.system_tools.get_cpu_usage()
+                + result
+            )
 
         # RAM and memory commands
         if (
             "ram" in command
             or "memory" in command
+            or "memory usage" in command
         ):
+            result = self.system_tools.get_memory_usage()
+
             return (
                 "Certainly sir. I am checking your memory usage. "
-                
-            ) + " " + self.system_tools.get_memory_usage()
+                + result
+            )
 
         # Battery commands
-        if "battery" in command:
+        if (
+            "battery" in command
+            or "battery status" in command
+            or "battery percentage" in command
+        ):
+            result = self.system_tools.get_battery_status()
+
             return (
                 "Of course sir. I am checking your battery status. "
-                
-            ) + " " + self.system_tools.get_battery_status()
+                + result
+            )
 
-        # Computer name commands
+        # Computer-name commands
         if (
             "computer name" in command
             or "system name" in command
+            or "device name" in command
         ):
+            result = self.system_tools.get_computer_name()
+
             return (
                 "Certainly sir. I am checking your computer name. "
-                
-            ) + " " + self.system_tools.get_computer_name()
+                + result
+            )
 
         # Time commands
-        if "time" in command:
+        if (
+            "what is the time" in command
+            or "what's the time" in command
+            or "current time" in command
+            or command == "time"
+            or "tell me the time" in command
+        ):
+            result = self.time_tools.get_current_time()
+
             return (
-                "Of course sir. Let me check the time. "
-                "Happy to help."
-            ) + " " + self.time_tools.get_current_time()
+                "Of course sir. The current time is "
+                + result
+            )
 
         # Date commands
         if (
-            "date" in command
-            or "today" in command
+            "what is today's date" in command
+            or "what is today date" in command
+            or "today's date" in command
+            or "current date" in command
+            or command == "date"
+            or "what day is today" in command
         ):
-            return (
-                "Certainly sir. Let me check today's date. "
-                "Happy to help."
-            ) + " " + self.time_tools.get_current_date()
+            result = self.time_tools.get_current_date()
 
-        # Shutdown command with confirmation
+            return (
+                "Certainly sir. Today's date is "
+                + result
+            )
+
+        # Shutdown command
         if (
             "shutdown computer" in command
             or "shut down computer" in command
+            or "shutdown the computer" in command
+            or "shut down the computer" in command
         ):
             approved = self.confirmation.ask_confirmation(
                 "shutdown the computer"
@@ -285,8 +439,8 @@ class CommandOrchestrator:
             if approved:
                 return (
                     "Shutdown request approved, sir. "
-                    "However, the actual shutdown function "
-                    "is safely disabled in this version."
+                    "The actual shutdown function is safely "
+                    "disabled in this version."
                 )
 
             return (
@@ -299,7 +453,8 @@ class CommandOrchestrator:
             "exit",
             "stop listening",
             "goodbye",
-            "quit"
+            "quit",
+            "close jarvis"
         }:
             return "EXIT"
 
