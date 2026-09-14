@@ -1,3 +1,4 @@
+
 from tools.app_control import AppController
 from tools.system_tools import SystemTools
 from tools.time_tools import TimeTools
@@ -63,9 +64,7 @@ class CommandOrchestrator:
     def classify_command(self, command):
         """Identify the intent of a command."""
 
-        intent = self.intent_classifier.classify(
-            command
-        )
+        intent = self.intent_classifier.classify(command)
 
         return f"Detected intent: {intent}"
 
@@ -76,9 +75,6 @@ class CommandOrchestrator:
 
         # Greeting commands
         if command in {
-            "hello",
-            "hi",
-            "hey",
             "hello jarvis",
             "hey jarvis"
         }:
@@ -101,7 +97,7 @@ class CommandOrchestrator:
         if "open notepad" in command:
             return (
                 "Certainly sir. Opening Notepad. "
-                "Happy to help."
+                
             ) + " " + self.app_controller.open_application(
                 "notepad"
             )
@@ -109,7 +105,7 @@ class CommandOrchestrator:
         if "open calculator" in command:
             return (
                 "Certainly sir. Opening Calculator. "
-                "Happy to help."
+            
             ) + " " + self.app_controller.open_application(
                 "calculator"
             )
@@ -117,7 +113,7 @@ class CommandOrchestrator:
         if "open chrome" in command:
             return (
                 "Certainly sir. Opening Google Chrome. "
-                "Happy to help."
+            
             ) + " " + self.app_controller.open_application(
                 "chrome"
             )
@@ -125,7 +121,7 @@ class CommandOrchestrator:
         if "open youtube" in command:
             return (
                 "Certainly sir. Opening YouTube. "
-                "Happy to help."
+                
             ) + " " + self.app_controller.open_application(
                 "youtube"
             )
@@ -133,7 +129,7 @@ class CommandOrchestrator:
         if "open google" in command:
             return (
                 "Certainly sir. Opening Google. "
-                "Happy to help."
+            
             ) + " " + self.app_controller.open_application(
                 "google"
             )
@@ -148,7 +144,7 @@ class CommandOrchestrator:
 
             return (
                 "Of course sir. I am searching Google. "
-                "Happy to help."
+        
             ) + " " + self.app_controller.search_google(
                 query
             )
@@ -162,7 +158,7 @@ class CommandOrchestrator:
 
             return (
                 "Of course sir. I am searching for that. "
-                "Happy to help."
+                
             ) + " " + self.app_controller.search_google(
                 query
             )
@@ -176,7 +172,7 @@ class CommandOrchestrator:
         ):
             return (
                 "Certainly sir. Opening your project folder. "
-                "Happy to help."
+                
             ) + " " + self.file_manager.open_project_folder()
 
         if (
@@ -200,41 +196,74 @@ class CommandOrchestrator:
                 "Happy to help."
             ) + " " + self.file_manager.create_demo_folder()
 
-        # System information commands
-        if "cpu" in command or "processor" in command:
+        # Complete system information command
+        if (
+            "system information" in command
+            or "system info" in command
+            or "show system information" in command
+            or "show system info" in command
+        ):
+            cpu_info = self.system_tools.get_cpu_usage()
+            memory_info = self.system_tools.get_memory_usage()
+            battery_info = self.system_tools.get_battery_status()
+            computer_info = self.system_tools.get_computer_name()
+
+            return (
+                "Certainly sir. Here is your system information. "
+                + cpu_info
+                + " "
+                + memory_info
+                + " "
+                + battery_info
+                + " "
+                + computer_info
+            )
+
+        # CPU commands
+        if (
+            "cpu" in command
+            or "processor" in command
+        ):
             return (
                 "Of course sir. I am checking your CPU usage. "
-                "Happy to help."
+                
             ) + " " + self.system_tools.get_cpu_usage()
 
-        if "ram" in command or "memory" in command:
+        # RAM and memory commands
+        if (
+            "ram" in command
+            or "memory" in command
+        ):
             return (
                 "Certainly sir. I am checking your memory usage. "
-                "Happy to help."
+                
             ) + " " + self.system_tools.get_memory_usage()
 
+        # Battery commands
         if "battery" in command:
             return (
                 "Of course sir. I am checking your battery status. "
-                "Happy to help."
+                
             ) + " " + self.system_tools.get_battery_status()
 
+        # Computer name commands
         if (
             "computer name" in command
             or "system name" in command
         ):
             return (
                 "Certainly sir. I am checking your computer name. "
-                "Happy to help."
+                
             ) + " " + self.system_tools.get_computer_name()
 
-        # Time and date commands
+        # Time commands
         if "time" in command:
             return (
                 "Of course sir. Let me check the time. "
                 "Happy to help."
             ) + " " + self.time_tools.get_current_time()
 
+        # Date commands
         if (
             "date" in command
             or "today" in command
@@ -277,5 +306,5 @@ class CommandOrchestrator:
         # Friendly unknown-command response
         return (
             "I'm sorry sir, I don't know that command yet. "
-            "But I'm happy to help you with another request."
+            "But I'm ready to help you with another request."
         )
