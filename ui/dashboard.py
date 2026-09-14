@@ -1,35 +1,41 @@
+
 import tkinter as tk
 from tkinter import scrolledtext
 from datetime import datetime
+import platform
+import psutil
 
 
 class JarvisDashboard:
     """Professional desktop dashboard for JARVIS."""
 
-    def __init__(self, root, command_callback):
+    def __init__(self, root, command_callback=None):
         self.root = root
         self.command_callback = command_callback
 
         self.root.title("J.A.R.V.I.S. - Voice Intelligence System")
-        self.root.geometry("850x600")
+        self.root.geometry("900x700")
         self.root.configure(bg="#101820")
-        self.root.minsize(700, 500)
+        self.root.minsize(750, 600)
 
         self.build_interface()
+        self.update_clock()
+        self.update_system_information()
 
     def build_interface(self):
         # Header
         header = tk.Frame(
             self.root,
             bg="#162633",
-            height=85
+            height=95
         )
         header.pack(fill="x")
+        header.pack_propagate(False)
 
         title = tk.Label(
             header,
             text="J.A.R.V.I.S.",
-            font=("Segoe UI", 26, "bold"),
+            font=("Segoe UI", 28, "bold"),
             fg="#00e5ff",
             bg="#162633"
         )
@@ -49,7 +55,11 @@ class JarvisDashboard:
             self.root,
             bg="#101820"
         )
-        status_frame.pack(fill="x", padx=20, pady=18)
+        status_frame.pack(
+            fill="x",
+            padx=20,
+            pady=18
+        )
 
         self.status_label = tk.Label(
             status_frame,
@@ -69,33 +79,64 @@ class JarvisDashboard:
         )
         self.time_label.pack(side="right")
 
-        # Information cards
+        # Live system information cards
         cards_frame = tk.Frame(
             self.root,
             bg="#101820"
         )
-        cards_frame.pack(fill="x", padx=20)
+        cards_frame.pack(
+            fill="x",
+            padx=20
+        )
 
-        self.create_card(
+        self.cpu_value = self.create_card(
             cards_frame,
-            "VOICE SYSTEM",
-            "READY",
+            "CPU USAGE",
+            "Loading...",
             0
         )
 
-        self.create_card(
+        self.memory_value = self.create_card(
             cards_frame,
-            "AI BRAIN",
-            "ACTIVE",
+            "RAM USAGE",
+            "Loading...",
             1
         )
 
-        self.create_card(
+        self.battery_value = self.create_card(
             cards_frame,
-            "SECURITY",
-            "PROTECTED",
+            "BATTERY",
+            "Loading...",
             2
         )
+
+        self.computer_value = self.create_card(
+            cards_frame,
+            "COMPUTER",
+            platform.node(),
+            3
+        )
+
+        # Refresh button
+        refresh_button = tk.Button(
+            self.root,
+            text="⟳ Refresh System Information",
+            command=self.update_system_information,
+            font=("Segoe UI", 10, "bold"),
+            fg="#101820",
+            bg="#00e5ff",
+            activebackground="#00b8d4",
+            relief="flat",
+            padx=12,
+            pady=8,
+            cursor="hand2"
+        )
+        refresh_button.pack(
+            anchor="e",
+            padx=20,
+            pady=(15, 0)
+        )
+
         # Latest response panel
         latest_title = tk.Label(
             self.root,
@@ -107,7 +148,7 @@ class JarvisDashboard:
         latest_title.pack(
             anchor="w",
             padx=20,
-            pady=(22, 8)
+            pady=(20, 8)
         )
 
         self.latest_response = tk.Label(
@@ -118,7 +159,7 @@ class JarvisDashboard:
             bg="#1b2d3a",
             anchor="w",
             justify="left",
-            wraplength=780,
+            wraplength=820,
             padx=15,
             pady=15
         )
@@ -126,6 +167,7 @@ class JarvisDashboard:
             fill="x",
             padx=20
         )
+
         # Activity title
         activity_title = tk.Label(
             self.root,
@@ -134,12 +176,16 @@ class JarvisDashboard:
             fg="#00e5ff",
             bg="#101820"
         )
-        activity_title.pack(anchor="w", padx=20, pady=(25, 8))
+        activity_title.pack(
+            anchor="w",
+            padx=20,
+            pady=(20, 8)
+        )
 
         # Activity display
         self.activity_box = scrolledtext.ScrolledText(
             self.root,
-            height=14,
+            height=12,
             font=("Consolas", 10),
             bg="#0b1117",
             fg="#dce6ed",
@@ -157,26 +203,27 @@ class JarvisDashboard:
         self.add_activity("JARVIS dashboard initialized.")
         self.add_activity("Voice system ready.")
         self.add_activity("Security layer protected.")
+        self.add_activity("Live system monitoring enabled.")
         self.add_activity("Waiting for commands...")
-
-        self.update_clock()
 
     def create_card(self, parent, title, value, column):
         card = tk.Frame(
             parent,
             bg="#1b2d3a",
-            width=240,
-            height=75
+            height=85
         )
         card.grid(
             row=0,
             column=column,
-            padx=6,
+            padx=5,
             sticky="nsew"
         )
         card.grid_propagate(False)
 
-        parent.grid_columnconfigure(column, weight=1)
+        parent.grid_columnconfigure(
+            column,
+            weight=1
+        )
 
         title_label = tk.Label(
             card,
@@ -190,11 +237,42 @@ class JarvisDashboard:
         value_label = tk.Label(
             card,
             text=value,
-            font=("Segoe UI", 13, "bold"),
+            font=("Segoe UI", 12, "bold"),
             fg="#00ff9d",
             bg="#1b2d3a"
         )
         value_label.pack()
+
+        return value_label
+
+    def update_system_information(self):
+        cpu_usage = psutil.cpu_percent(interval=0.2)
+        memory_usage = psutil.virtual_memory().percent
+        battery = psutil.sensors_battery()
+
+        self.cpu_value.config(
+            text=f"{cpu_usage:.1f}%"
+        )
+
+        self.memory_value.config(
+            text=f"{memory_usage:.1f}%"
+        )
+
+        if battery is None:
+            self.battery_value.config(
+                text="Not available"
+            )
+        else:
+            charging_status = "Charging" if battery.power_plugged else "Not charging"
+            self.battery_value.config(
+                text=f"{battery.percent:.0f}%"
+            )
+
+        self.computer_value.config(
+            text=platform.node()
+        )
+
+        self.add_activity("System information refreshed.")
 
     def add_activity(self, message):
         timestamp = datetime.now().strftime("%H:%M:%S")
@@ -211,9 +289,24 @@ class JarvisDashboard:
             "%A, %d %B %Y | %I:%M:%S %p"
         )
 
-        self.time_label.config(text=current_time)
-        self.root.after(1000, self.update_clock)
+        self.time_label.config(
+            text=current_time
+        )
+
+        self.root.after(
+            1000,
+            self.update_clock
+        )
 
     def display_command(self, command, response):
-        self.add_activity(f"USER: {command}")
-        self.add_activity(f"JARVIS: {response}")
+        self.latest_response.config(
+            text=response
+        )
+
+        self.add_activity(
+            f"USER: {command}"
+        )
+
+        self.add_activity(
+            f"JARVIS: {response}"
+        )

@@ -76,7 +76,7 @@ class CommandOrchestrator:
         # Greeting commands
         if command in {
             "hello jarvis",
-            "hey jarvis"
+            "heyy jarvis"
         }:
             return (
                 "Hello sir. I am happy to help you. "
